@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'sample_item.dart';
+import 'budget_models.dart';
 
 class DailyExpensesView extends StatefulWidget {
   final BudgetDay day;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../settings/settings_view.dart';
-import 'sample_item.dart';
+import 'budget_models.dart';
 import 'daily_expenses_view.dart';
 
 class WeeklyBudgetListView extends StatelessWidget {
