@@ -127,7 +127,14 @@ class WeeklyBudgetListView extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Theme.of(context).colorScheme.primaryContainer,
+            Theme.of(context).colorScheme.secondaryContainer,
+          ],
+        ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -145,7 +152,7 @@ class WeeklyBudgetListView extends ConsumerWidget {
           Text(
             'Weekly Budget Overview',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
                   fontWeight: FontWeight.bold,
                 ),
           ),
@@ -180,13 +187,13 @@ class WeeklyBudgetListView extends ConsumerWidget {
         Text(
           label,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
               ),
         ),
         Text(
           '${amount.toStringAsFixed(2)} kr',
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
                 fontWeight: FontWeight.bold,
               ),
         ),
@@ -241,7 +248,7 @@ class BudgetProgressPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     // Draw background bar
     final backgroundPaint = Paint()
-      ..color = theme.colorScheme.surfaceVariant
+      ..color = theme.colorScheme.surfaceVariant.withOpacity(0.5)
       ..style = PaintingStyle.fill;
 
     final backgroundRect = RRect.fromLTRBR(
