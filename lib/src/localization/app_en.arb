@@ -1,0 +1,6 @@
+{
+  "appTitle": "budg",
+  "@appTitle": {
+    "description": "The title of the application"
+  }
+}
