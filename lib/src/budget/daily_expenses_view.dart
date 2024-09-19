@@ -76,54 +76,54 @@ class DailyExpensesView extends ConsumerWidget {
   }
 
   Widget _buildExpenseCard(BuildContext context, Expense expense, int index) {
-    return Dismissible(
-      key: Key(expense.hashCode.toString()),
-      direction: DismissDirection.endToStart,
-      onDismissed: (direction) {
-        onRemoveExpense(index);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Expense of ${expense.amount.toStringAsFixed(2)} kr removed'),
-            action: SnackBarAction(
-              label: 'Undo',
-              onPressed: () {
-                // Implement undo functionality here
-              },
-            ),
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: Theme.of(context).colorScheme.secondary,
+          child: Text(
+            '${index + 1}',
+            style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
           ),
-        );
-      },
-      background: Container(
-        color: Colors.red,
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 16),
-        child: const Icon(
-          Icons.delete,
-          color: Colors.white,
         ),
-      ),
-      child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: ListTile(
-          leading: CircleAvatar(
-            backgroundColor: Theme.of(context).colorScheme.secondary,
-            child: Text(
-              '${index + 1}',
-              style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-            ),
-          ),
-          title: Text(
-            '${expense.amount.toStringAsFixed(2)} kr',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
-          trailing: IconButton(
-            icon: const Icon(Icons.delete_outline),
-            onPressed: () {
+        title: Text(
+          '${expense.amount.toStringAsFixed(2)} kr',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        trailing: IconButton(
+          icon: const Icon(Icons.delete_outline),
+          onPressed: () async {
+            final confirm = await showDialog<bool>(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Confirm Removal'),
+                  content: Text('Are you sure you want to remove this expense of ${expense.amount.toStringAsFixed(2)} kr?'),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      child: const Text('Remove'),
+                    ),
+                  ],
+                );
+              },
+            );
+
+            if (confirm == true) {
               onRemoveExpense(index);
-            },
-          ),
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Expense of ${expense.amount.toStringAsFixed(2)} kr removed'),
+                ),
+              );
+            }
+          },
         ),
       ),
     );
