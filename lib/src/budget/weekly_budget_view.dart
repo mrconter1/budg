@@ -122,18 +122,12 @@ class WeeklyBudgetListView extends ConsumerWidget {
   }
 
   Widget _buildBudgetOverview(BuildContext context, double totalBudget, double remainingBudget) {
-    final percentage = (remainingBudget / totalBudget).clamp(0.0, 1.0);
+    final remainingPercentage = (remainingBudget / totalBudget).clamp(0.0, 1.0);
+    
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Theme.of(context).colorScheme.primaryContainer,
-            Theme.of(context).colorScheme.secondaryContainer,
-          ],
-        ),
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -151,7 +145,7 @@ class WeeklyBudgetListView extends ConsumerWidget {
           Text(
             'Weekly Budget Overview',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
                 ),
           ),
@@ -164,11 +158,14 @@ class WeeklyBudgetListView extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 16),
-          LinearProgressIndicator(
-            value: percentage,
-            backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.2),
-            valueColor: AlwaysStoppedAnimation<Color>(
-              percentage > 0.25 ? Colors.green : Colors.red,
+          SizedBox(
+            height: 20,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: CustomPaint(
+                size: Size.infinite,
+                painter: BudgetProgressPainter(remainingPercentage),
+              ),
             ),
           ),
         ],
@@ -183,13 +180,13 @@ class WeeklyBudgetListView extends ConsumerWidget {
         Text(
           label,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
         ),
         Text(
           '${amount.toStringAsFixed(2)} kr',
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.bold,
               ),
         ),
@@ -232,4 +229,33 @@ class WeeklyBudgetListView extends ConsumerWidget {
       ),
     );
   }
+}
+
+class BudgetProgressPainter extends CustomPainter {
+  final double remainingPercentage;
+
+  BudgetProgressPainter(this.remainingPercentage);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..style = PaintingStyle.fill;
+
+    // Calculate color based on remaining percentage
+    final hue = (120 * remainingPercentage).clamp(0, 120).toDouble();
+    paint.color = HSVColor.fromAHSV(1.0, hue, 1.0, 1.0).toColor();
+
+    final rect = RRect.fromLTRBR(
+      size.width * (1 - remainingPercentage),
+      0,
+      size.width,
+      size.height,
+      Radius.circular(size.height / 2)
+    );
+
+    canvas.drawRRect(rect, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
