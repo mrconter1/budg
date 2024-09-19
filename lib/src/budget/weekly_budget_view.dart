@@ -238,6 +238,22 @@ class BudgetProgressPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    // Draw background bar
+    final backgroundPaint = Paint()
+      ..color = Colors.grey[300]!
+      ..style = PaintingStyle.fill;
+
+    final backgroundRect = RRect.fromLTRBR(
+      0,
+      0,
+      size.width,
+      size.height,
+      Radius.circular(size.height / 2)
+    );
+
+    canvas.drawRRect(backgroundRect, backgroundPaint);
+
+    // Draw progress bar
     final paint = Paint()
       ..style = PaintingStyle.fill;
 
