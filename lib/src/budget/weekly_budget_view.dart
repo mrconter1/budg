@@ -23,7 +23,19 @@ class WeeklyBudgetNotifier extends StateNotifier<WeeklyBudgetState> {
     final updatedWeekDays = [...state.weekDays];
     final updatedDay = BudgetDay(
       state.weekDays[dayIndex].dayName,
-      [...state.weekDays[dayIndex].expenses, Expense('', amount)],
+      [...state.weekDays[dayIndex].expenses, Expense(amount)],
+    );
+    updatedWeekDays[dayIndex] = updatedDay;
+    state = WeeklyBudgetState(weekDays: updatedWeekDays, weeklyBudget: state.weeklyBudget);
+  }
+
+  void removeExpense(int dayIndex, int expenseIndex) {
+    final updatedWeekDays = [...state.weekDays];
+    final updatedExpenses = List<Expense>.from(state.weekDays[dayIndex].expenses);
+    updatedExpenses.removeAt(expenseIndex);
+    final updatedDay = BudgetDay(
+      state.weekDays[dayIndex].dayName,
+      updatedExpenses,
     );
     updatedWeekDays[dayIndex] = updatedDay;
     state = WeeklyBudgetState(weekDays: updatedWeekDays, weeklyBudget: state.weeklyBudget);
@@ -212,7 +224,7 @@ class WeeklyBudgetListView extends ConsumerWidget {
             MaterialPageRoute(
               builder: (context) => DailyExpensesView(
                 day: day,
-                onAddExpense: (expense) => notifier.addExpense(index, expense.amount),
+                onRemoveExpense: (expenseIndex) => notifier.removeExpense(index, expenseIndex),
               ),
             ),
           );
