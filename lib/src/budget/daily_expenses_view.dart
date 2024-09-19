@@ -1,32 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'budget_models.dart';
+import 'weekly_budget_view.dart'; // Import this to access the provider
 
 class DailyExpensesView extends ConsumerWidget {
-  final BudgetDay day;
-  final Function(int) onRemoveExpense;
+  final int dayIndex;
 
   const DailyExpensesView({
     Key? key,
-    required this.day,
-    required this.onRemoveExpense,
+    required this.dayIndex,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(weeklyBudgetProvider);
+    final day = state.weekDays[dayIndex];
+    final notifier = ref.read(weeklyBudgetProvider.notifier);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('${day.dayName} Expenses'),
       ),
       body: Column(
         children: [
-          _buildDaySummary(context),
+          _buildDaySummary(context, day),
           Expanded(
             child: ListView.builder(
               itemCount: day.expenses.length,
               itemBuilder: (context, index) {
                 final expense = day.expenses[index];
-                return _buildExpenseCard(context, expense, index);
+                return _buildExpenseCard(context, expense, index, notifier);
               },
             ),
           ),
@@ -35,7 +38,7 @@ class DailyExpensesView extends ConsumerWidget {
     );
   }
 
-  Widget _buildDaySummary(BuildContext context) {
+  Widget _buildDaySummary(BuildContext context, BudgetDay day) {
     return Container(
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.all(16),
@@ -75,7 +78,7 @@ class DailyExpensesView extends ConsumerWidget {
     );
   }
 
-  Widget _buildExpenseCard(BuildContext context, Expense expense, int index) {
+  Widget _buildExpenseCard(BuildContext context, Expense expense, int index, WeeklyBudgetNotifier notifier) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
@@ -116,7 +119,7 @@ class DailyExpensesView extends ConsumerWidget {
             );
 
             if (confirm == true) {
-              onRemoveExpense(index);
+              notifier.removeExpense(dayIndex, index);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text('Expense of ${expense.amount.toStringAsFixed(2)} kr removed'),

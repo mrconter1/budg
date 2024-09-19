@@ -94,7 +94,7 @@ class WeeklyBudgetListView extends ConsumerWidget {
               itemCount: state.weekDays.length,
               itemBuilder: (BuildContext context, int index) {
                 final day = state.weekDays[index];
-                return _buildDayCard(context, day, index, notifier);
+                return _buildDayCard(context, day, index);
               },
             ),
           ),
@@ -201,7 +201,7 @@ class WeeklyBudgetListView extends ConsumerWidget {
     );
   }
 
-  Widget _buildDayCard(BuildContext context, BudgetDay day, int index, WeeklyBudgetNotifier notifier) {
+  Widget _buildDayCard(BuildContext context, BudgetDay day, int index) {
     return Card(
       elevation: 2,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -227,8 +227,7 @@ class WeeklyBudgetListView extends ConsumerWidget {
             context,
             MaterialPageRoute(
               builder: (context) => DailyExpensesView(
-                day: day,
-                onRemoveExpense: (expenseIndex) => notifier.removeExpense(index, expenseIndex),
+                dayIndex: index,
               ),
             ),
           );
