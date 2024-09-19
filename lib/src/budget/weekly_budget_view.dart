@@ -164,7 +164,7 @@ class WeeklyBudgetListView extends ConsumerWidget {
               borderRadius: BorderRadius.circular(10),
               child: CustomPaint(
                 size: Size.infinite,
-                painter: BudgetProgressPainter(remainingPercentage),
+                painter: BudgetProgressPainter(remainingPercentage, Theme.of(context)),
               ),
             ),
           ),
@@ -233,14 +233,15 @@ class WeeklyBudgetListView extends ConsumerWidget {
 
 class BudgetProgressPainter extends CustomPainter {
   final double remainingPercentage;
+  final ThemeData theme;
 
-  BudgetProgressPainter(this.remainingPercentage);
+  BudgetProgressPainter(this.remainingPercentage, this.theme);
 
   @override
   void paint(Canvas canvas, Size size) {
     // Draw background bar
     final backgroundPaint = Paint()
-      ..color = Colors.grey[300]!
+      ..color = theme.colorScheme.surfaceVariant
       ..style = PaintingStyle.fill;
 
     final backgroundRect = RRect.fromLTRBR(
@@ -258,8 +259,10 @@ class BudgetProgressPainter extends CustomPainter {
       ..style = PaintingStyle.fill;
 
     // Calculate color based on remaining percentage
-    final hue = (120 * remainingPercentage).clamp(0, 120).toDouble();
-    paint.color = HSVColor.fromAHSV(1.0, hue, 1.0, 1.0).toColor();
+    final startColor = Color(0xFF4CAF50); // A more muted green
+    final endColor = Color(0xFFD34040); // A softer red
+
+    paint.color = Color.lerp(endColor, startColor, remainingPercentage)!;
 
     final rect = RRect.fromLTRBR(
       size.width * (1 - remainingPercentage),
