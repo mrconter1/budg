@@ -3,8 +3,13 @@ import 'budget_models.dart';
 
 class DailyExpensesView extends StatefulWidget {
   final BudgetDay day;
+  final Function(Expense) onAddExpense;
 
-  const DailyExpensesView({super.key, required this.day});
+  const DailyExpensesView({
+    Key? key,
+    required this.day,
+    required this.onAddExpense,
+  }) : super(key: key);
 
   @override
   _DailyExpensesViewState createState() => _DailyExpensesViewState();
@@ -80,12 +85,12 @@ class _DailyExpensesViewState extends State<DailyExpensesView> {
 
   void _addExpense() {
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        widget.day.expenses.add(Expense(
-          _descriptionController.text,
-          double.parse(_amountController.text),
-        ));
-      });
+      final newExpense = Expense(
+        _descriptionController.text,
+        double.parse(_amountController.text),
+      );
+      widget.onAddExpense(newExpense);
+      setState(() {});
       _descriptionController.clear();
       _amountController.clear();
     }

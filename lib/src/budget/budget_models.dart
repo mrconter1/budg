@@ -1,8 +1,9 @@
 class BudgetDay {
   final String dayName;
-  List<Expense> expenses;
+  final List<Expense> expenses;
 
-  BudgetDay(this.dayName, [this.expenses = const []]);
+  BudgetDay(this.dayName, [List<Expense>? expenses])
+      : expenses = expenses ?? [];
 
   double get totalSpent => expenses.fold(0, (sum, expense) => sum + expense.amount);
 }

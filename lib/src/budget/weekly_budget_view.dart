@@ -3,11 +3,14 @@ import '../settings/settings_view.dart';
 import 'budget_models.dart';
 import 'daily_expenses_view.dart';
 
-class WeeklyBudgetListView extends StatelessWidget {
-  WeeklyBudgetListView({super.key});
-
+class WeeklyBudgetListView extends StatefulWidget {
   static const routeName = '/';
 
+  @override
+  _WeeklyBudgetListViewState createState() => _WeeklyBudgetListViewState();
+}
+
+class _WeeklyBudgetListViewState extends State<WeeklyBudgetListView> {
   final List<BudgetDay> weekDays = [
     BudgetDay('Monday'),
     BudgetDay('Tuesday'),
@@ -17,6 +20,15 @@ class WeeklyBudgetListView extends StatelessWidget {
     BudgetDay('Saturday'),
     BudgetDay('Sunday'),
   ];
+
+  void _addExpense(int dayIndex, Expense expense) {
+    setState(() {
+      weekDays[dayIndex] = BudgetDay(
+        weekDays[dayIndex].dayName,
+        [...weekDays[dayIndex].expenses, expense],
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +56,10 @@ class WeeklyBudgetListView extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => DailyExpensesView(day: day),
+                  builder: (context) => DailyExpensesView(
+                    day: day,
+                    onAddExpense: (expense) => _addExpense(index, expense),
+                  ),
                 ),
               );
             },
