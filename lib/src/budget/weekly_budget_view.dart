@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../settings/settings_view.dart';
 import 'budget_models.dart';
 import 'daily_expenses_view.dart';
-import 'quick_expense_entry.dart';
+import 'expense_entry.dart';
 
 final weeklyBudgetProvider = StateNotifierProvider<WeeklyBudgetNotifier, WeeklyBudgetState>((ref) {
   return WeeklyBudgetNotifier();
@@ -106,7 +106,7 @@ class WeeklyBudgetListView extends ConsumerWidget {
             context: context,
             isScrollControlled: true,
             builder: (BuildContext context) {
-              return QuickExpenseEntry(
+              return ExpenseEntry(
                 weekDays: state.weekDays,
                 onAddExpense: (dayIndex, amount) {
                   notifier.addExpense(dayIndex, amount);

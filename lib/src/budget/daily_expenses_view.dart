@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'budget_models.dart';
 import 'weekly_budget_view.dart';
+import 'expense_entry.dart';
 
 class DailyExpensesView extends ConsumerWidget {
   final int dayIndex;
@@ -41,9 +42,9 @@ class DailyExpensesView extends ConsumerWidget {
             context: context,
             isScrollControlled: true,
             builder: (BuildContext context) {
-              return QuickExpenseEntryForDay(
-                dayName: day.dayName,
-                onAddExpense: (amount) {
+              return ExpenseEntry(
+                singleDayName: day.dayName,
+                onAddExpense: (_, amount) {
                   notifier.addExpense(dayIndex, amount);
                   Navigator.pop(context);
                 },
@@ -148,85 +149,5 @@ class DailyExpensesView extends ConsumerWidget {
         ),
       ),
     );
-  }
-}
-
-class QuickExpenseEntryForDay extends StatefulWidget {
-  final String dayName;
-  final Function(double) onAddExpense;
-
-  const QuickExpenseEntryForDay({
-    Key? key,
-    required this.dayName,
-    required this.onAddExpense,
-  }) : super(key: key);
-
-  @override
-  _QuickExpenseEntryForDayState createState() => _QuickExpenseEntryForDayState();
-}
-
-class _QuickExpenseEntryForDayState extends State<QuickExpenseEntryForDay> {
-  final _amountController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-        left: 16,
-        right: 16,
-        top: 16,
-      ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Add Expense for ${widget.dayName}',
-              style: Theme.of(context).textTheme.headlineSmall,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _amountController,
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(
-                labelText: 'Amount (kr)',
-                border: OutlineInputBorder(),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter an amount';
-                }
-                if (double.tryParse(value) == null) {
-                  return 'Please enter a valid number';
-                }
-                return null;
-              },
-              autofocus: true,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  widget.onAddExpense(double.parse(_amountController.text));
-                }
-              },
-              child: const Text('Add Expense'),
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _amountController.dispose();
-    super.dispose();
   }
 }
