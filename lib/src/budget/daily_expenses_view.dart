@@ -1,9 +1,8 @@
-// File: daily_expenses_view.dart
-
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'budget_models.dart';
 
-class DailyExpensesView extends StatefulWidget {
+class DailyExpensesView extends ConsumerStatefulWidget {
   final BudgetDay day;
   final Function(Expense) onAddExpense;
 
@@ -17,7 +16,7 @@ class DailyExpensesView extends StatefulWidget {
   _DailyExpensesViewState createState() => _DailyExpensesViewState();
 }
 
-class _DailyExpensesViewState extends State<DailyExpensesView> {
+class _DailyExpensesViewState extends ConsumerState<DailyExpensesView> {
   final _formKey = GlobalKey<FormState>();
   final _descriptionController = TextEditingController();
   final _amountController = TextEditingController();
@@ -35,9 +34,16 @@ class _DailyExpensesViewState extends State<DailyExpensesView> {
               itemCount: widget.day.expenses.length,
               itemBuilder: (context, index) {
                 final expense = widget.day.expenses[index];
-                return ListTile(
-                  title: Text(expense.description),
-                  trailing: Text('${expense.amount.toStringAsFixed(2)} kr'),
+                return Card(
+                  elevation: 2,
+                  margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: ListTile(
+                    title: Text(expense.description),
+                    trailing: Text(
+                      '${expense.amount.toStringAsFixed(2)} kr',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ),
                 );
               },
             ),
@@ -50,7 +56,10 @@ class _DailyExpensesViewState extends State<DailyExpensesView> {
                 children: [
                   TextFormField(
                     controller: _descriptionController,
-                    decoration: const InputDecoration(labelText: 'Description'),
+                    decoration: const InputDecoration(
+                      labelText: 'Description',
+                      border: OutlineInputBorder(),
+                    ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter a description';
@@ -58,9 +67,13 @@ class _DailyExpensesViewState extends State<DailyExpensesView> {
                       return null;
                     },
                   ),
+                  const SizedBox(height: 16),
                   TextFormField(
                     controller: _amountController,
-                    decoration: const InputDecoration(labelText: 'Amount (kr)'),
+                    decoration: const InputDecoration(
+                      labelText: 'Amount (kr)',
+                      border: OutlineInputBorder(),
+                    ),
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -72,9 +85,13 @@ class _DailyExpensesViewState extends State<DailyExpensesView> {
                       return null;
                     },
                   ),
+                  const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: _addExpense,
                     child: const Text('Add Expense'),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 50),
+                    ),
                   ),
                 ],
               ),
