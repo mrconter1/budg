@@ -1,3 +1,5 @@
+// File: daily_expenses_view.dart
+
 import 'package:flutter/material.dart';
 import 'budget_models.dart';
 
@@ -35,7 +37,7 @@ class _DailyExpensesViewState extends State<DailyExpensesView> {
                 final expense = widget.day.expenses[index];
                 return ListTile(
                   title: Text(expense.description),
-                  trailing: Text('\$${expense.amount.toStringAsFixed(2)}'),
+                  trailing: Text('${expense.amount.toStringAsFixed(2)} kr'),
                 );
               },
             ),
@@ -58,7 +60,7 @@ class _DailyExpensesViewState extends State<DailyExpensesView> {
                   ),
                   TextFormField(
                     controller: _amountController,
-                    decoration: const InputDecoration(labelText: 'Amount'),
+                    decoration: const InputDecoration(labelText: 'Amount (kr)'),
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value == null || value.isEmpty) {

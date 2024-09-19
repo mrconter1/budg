@@ -40,8 +40,14 @@ class MyApp extends StatelessWidget {
               settings: routeSettings,
               builder: (BuildContext context) {
                 switch (routeSettings.name) {
-                  case SettingsView.routeName:
-                    return SettingsView(controller: settingsController);
+                  case '/settings':
+                    return SettingsView(
+                      onResetWeek: () {
+                        // Implement the reset week functionality here
+                        // For now, we'll just print a message
+                        print('Reset week requested');
+                      },
+                    );
                   case WeeklyBudgetListView.routeName:
                   default:
                     return WeeklyBudgetListView();

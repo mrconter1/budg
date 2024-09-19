@@ -1,17 +1,11 @@
+// File: settings_view.dart
+
 import 'package:flutter/material.dart';
 
-import 'settings_controller.dart';
-
-/// Displays the various settings that can be customized by the user.
-///
-/// When a user changes a setting, the SettingsController is updated and
-/// Widgets that listen to the SettingsController are rebuilt.
 class SettingsView extends StatelessWidget {
-  const SettingsView({super.key, required this.controller});
+  final VoidCallback onResetWeek;
 
-  static const routeName = '/settings';
-
-  final SettingsController controller;
+  const SettingsView({Key? key, required this.onResetWeek}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -19,32 +13,43 @@ class SettingsView extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Settings'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        // Glue the SettingsController to the theme selection DropdownButton.
-        //
-        // When a user selects a theme from the dropdown list, the
-        // SettingsController is updated, which rebuilds the MaterialApp.
-        child: DropdownButton<ThemeMode>(
-          // Read the selected themeMode from the controller
-          value: controller.themeMode,
-          // Call the updateThemeMode method any time the user selects a theme.
-          onChanged: controller.updateThemeMode,
-          items: const [
-            DropdownMenuItem(
-              value: ThemeMode.system,
-              child: Text('System Theme'),
+      body: ListView(
+        children: [
+          ListTile(
+            title: const Text('Reset Week'),
+            subtitle: const Text('Clear all expenses for the current week'),
+            trailing: ElevatedButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text('Reset Week'),
+                      content: const Text('Are you sure you want to reset all expenses for this week?'),
+                      actions: <Widget>[
+                        TextButton(
+                          child: const Text('Cancel'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                        TextButton(
+                          child: const Text('Reset'),
+                          onPressed: () {
+                            onResetWeek();
+                            Navigator.of(context).pop();
+                            Navigator.of(context).pop(true);
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+              child: const Text('Reset'),
             ),
-            DropdownMenuItem(
-              value: ThemeMode.light,
-              child: Text('Light Theme'),
-            ),
-            DropdownMenuItem(
-              value: ThemeMode.dark,
-              child: Text('Dark Theme'),
-            )
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

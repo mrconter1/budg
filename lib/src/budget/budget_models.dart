@@ -1,3 +1,5 @@
+// File: budget_models.dart
+
 class BudgetDay {
   final String dayName;
   final List<Expense> expenses;
@@ -13,4 +15,17 @@ class Expense {
   final double amount;
 
   Expense(this.description, this.amount);
+}
+
+// Add this function to create a new week
+List<BudgetDay> createNewWeek() {
+  return [
+    BudgetDay('Monday'),
+    BudgetDay('Tuesday'),
+    BudgetDay('Wednesday'),
+    BudgetDay('Thursday'),
+    BudgetDay('Friday'),
+    BudgetDay('Saturday'),
+    BudgetDay('Sunday'),
+  ];
 }

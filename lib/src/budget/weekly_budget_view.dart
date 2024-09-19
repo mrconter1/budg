@@ -1,3 +1,5 @@
+// File: weekly_budget_view.dart
+
 import 'package:flutter/material.dart';
 import '../settings/settings_view.dart';
 import 'budget_models.dart';
@@ -11,15 +13,13 @@ class WeeklyBudgetListView extends StatefulWidget {
 }
 
 class _WeeklyBudgetListViewState extends State<WeeklyBudgetListView> {
-  final List<BudgetDay> weekDays = [
-    BudgetDay('Monday'),
-    BudgetDay('Tuesday'),
-    BudgetDay('Wednesday'),
-    BudgetDay('Thursday'),
-    BudgetDay('Friday'),
-    BudgetDay('Saturday'),
-    BudgetDay('Sunday'),
-  ];
+  late List<BudgetDay> weekDays;
+
+  @override
+  void initState() {
+    super.initState();
+    weekDays = createNewWeek();
+  }
 
   void _addExpense(int dayIndex, Expense expense) {
     setState(() {
@@ -27,6 +27,12 @@ class _WeeklyBudgetListViewState extends State<WeeklyBudgetListView> {
         weekDays[dayIndex].dayName,
         [...weekDays[dayIndex].expenses, expense],
       );
+    });
+  }
+
+  void _resetWeek() {
+    setState(() {
+      weekDays = createNewWeek();
     });
   }
 
@@ -38,8 +44,14 @@ class _WeeklyBudgetListViewState extends State<WeeklyBudgetListView> {
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.restorablePushNamed(context, SettingsView.routeName);
+            onPressed: () async {
+              final shouldReset = await Navigator.push<bool>(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsView(onResetWeek: _resetWeek)),
+              );
+              if (shouldReset == true) {
+                _resetWeek();
+              }
             },
           ),
         ],
@@ -51,7 +63,7 @@ class _WeeklyBudgetListViewState extends State<WeeklyBudgetListView> {
           final day = weekDays[index];
           return ListTile(
             title: Text(day.dayName),
-            trailing: Text('\$${day.totalSpent.toStringAsFixed(2)}'),
+            trailing: Text('${day.totalSpent.toStringAsFixed(2)} kr'),
             onTap: () {
               Navigator.push(
                 context,
