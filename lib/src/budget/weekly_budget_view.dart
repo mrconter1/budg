@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../settings/settings_view.dart';
 import 'budget_models.dart';
 import 'daily_expenses_view.dart';
+import 'quick_expense_entry.dart';
 
 final weeklyBudgetProvider = StateNotifierProvider<WeeklyBudgetNotifier, WeeklyBudgetState>((ref) {
   return WeeklyBudgetNotifier();
@@ -18,11 +19,11 @@ class WeeklyBudgetState {
 class WeeklyBudgetNotifier extends StateNotifier<WeeklyBudgetState> {
   WeeklyBudgetNotifier() : super(WeeklyBudgetState(weekDays: createNewWeek(), weeklyBudget: WeeklyBudget(1000)));
 
-  void addExpense(int dayIndex, Expense expense) {
+  void addExpense(int dayIndex, double amount) {
     final updatedWeekDays = [...state.weekDays];
     final updatedDay = BudgetDay(
       state.weekDays[dayIndex].dayName,
-      [...state.weekDays[dayIndex].expenses, expense],
+      [...state.weekDays[dayIndex].expenses, Expense('', amount)],
     );
     updatedWeekDays[dayIndex] = updatedDay;
     state = WeeklyBudgetState(weekDays: updatedWeekDays, weeklyBudget: state.weeklyBudget);
@@ -86,6 +87,24 @@ class WeeklyBudgetListView extends ConsumerWidget {
             ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            builder: (BuildContext context) {
+              return QuickExpenseEntry(
+                weekDays: state.weekDays,
+                onAddExpense: (dayIndex, amount) {
+                  notifier.addExpense(dayIndex, amount);
+                  Navigator.pop(context);
+                },
+              );
+            },
+          );
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -193,7 +212,7 @@ class WeeklyBudgetListView extends ConsumerWidget {
             MaterialPageRoute(
               builder: (context) => DailyExpensesView(
                 day: day,
-                onAddExpense: (expense) => notifier.addExpense(index, expense),
+                onAddExpense: (expense) => notifier.addExpense(index, expense.amount),
               ),
             ),
           );
