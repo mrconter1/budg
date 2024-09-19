@@ -1,5 +1,3 @@
-// File: budget_models.dart
-
 class BudgetDay {
   final String dayName;
   final List<Expense> expenses;

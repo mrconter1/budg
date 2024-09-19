@@ -16,7 +16,7 @@ class WeeklyBudgetState {
 }
 
 class WeeklyBudgetNotifier extends StateNotifier<WeeklyBudgetState> {
-  WeeklyBudgetNotifier() : super(WeeklyBudgetState(weekDays: createNewWeek(), weeklyBudget: WeeklyBudget(1000)));
+  WeeklyBudgetNotifier() : super(WeeklyBudgetState(weekDays: createNewWeek(), weeklyBudget: WeeklyBudget(1500)));
 
   void addExpense(int dayIndex, Expense expense) {
     final updatedWeekDays = [...state.weekDays];
