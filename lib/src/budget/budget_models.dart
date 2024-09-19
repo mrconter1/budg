@@ -17,7 +17,17 @@ class Expense {
   Expense(this.description, this.amount);
 }
 
-// Add this function to create a new week
+class WeeklyBudget {
+  double amount;
+
+  WeeklyBudget(this.amount);
+
+  double remainingBudget(List<BudgetDay> weekDays) {
+    double totalSpent = weekDays.fold(0, (sum, day) => sum + day.totalSpent);
+    return amount - totalSpent;
+  }
+}
+
 List<BudgetDay> createNewWeek() {
   return [
     BudgetDay('Monday'),

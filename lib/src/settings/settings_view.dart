@@ -1,11 +1,32 @@
 // File: settings_view.dart
 
 import 'package:flutter/material.dart';
+import '../budget/budget_models.dart';
 
-class SettingsView extends StatelessWidget {
+class SettingsView extends StatefulWidget {
   final VoidCallback onResetWeek;
+  final WeeklyBudget weeklyBudget;
+  final Function(double) onUpdateBudget;
 
-  const SettingsView({Key? key, required this.onResetWeek}) : super(key: key);
+  const SettingsView({
+    Key? key,
+    required this.onResetWeek,
+    required this.weeklyBudget,
+    required this.onUpdateBudget,
+  }) : super(key: key);
+
+  @override
+  _SettingsViewState createState() => _SettingsViewState();
+}
+
+class _SettingsViewState extends State<SettingsView> {
+  late TextEditingController _budgetController;
+
+  @override
+  void initState() {
+    super.initState();
+    _budgetController = TextEditingController(text: widget.weeklyBudget.amount.toString());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,6 +36,22 @@ class SettingsView extends StatelessWidget {
       ),
       body: ListView(
         children: [
+          ListTile(
+            title: const Text('Weekly Budget (kr)'),
+            subtitle: TextField(
+              controller: _budgetController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                hintText: 'Enter weekly budget',
+              ),
+              onChanged: (value) {
+                double? newBudget = double.tryParse(value);
+                if (newBudget != null) {
+                  widget.onUpdateBudget(newBudget);
+                }
+              },
+            ),
+          ),
           ListTile(
             title: const Text('Reset Week'),
             subtitle: const Text('Clear all expenses for the current week'),
@@ -36,7 +73,7 @@ class SettingsView extends StatelessWidget {
                         TextButton(
                           child: const Text('Reset'),
                           onPressed: () {
-                            onResetWeek();
+                            widget.onResetWeek();
                             Navigator.of(context).pop();
                             Navigator.of(context).pop(true);
                           },
@@ -52,5 +89,11 @@ class SettingsView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _budgetController.dispose();
+    super.dispose();
   }
 }
