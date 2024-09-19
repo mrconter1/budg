@@ -7,6 +7,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'budget/weekly_budget_view.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_service.dart';
+import 'data/budget_repository.dart';
 
 final settingsServiceProvider = Provider<SettingsService>((ref) => SettingsService());
 
@@ -14,6 +15,8 @@ final settingsControllerProvider = StateNotifierProvider<SettingsController, The
   final settingsService = ref.watch(settingsServiceProvider);
   return SettingsController(settingsService);
 });
+
+final budgetRepositoryProvider = Provider<BudgetRepository>((ref) => LocalBudgetRepository());
 
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
@@ -59,21 +62,4 @@ class MyApp extends ConsumerWidget {
       home: const WeeklyBudgetListView(),
     );
   }
-}
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  final settingsService = SettingsService();
-  final settingsController = SettingsController(settingsService);
-  await settingsController.loadSettings();
-
-  runApp(
-    ProviderScope(
-      overrides: [
-        settingsServiceProvider.overrideWithValue(settingsService),
-        settingsControllerProvider.overrideWith((ref) => settingsController),
-      ],
-      child: const MyApp(),
-    ),
-  );
 }

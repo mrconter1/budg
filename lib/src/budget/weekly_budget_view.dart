@@ -4,20 +4,25 @@ import '../settings/settings_view.dart';
 import 'budget_models.dart';
 import 'daily_expenses_view.dart';
 import 'expense_entry.dart';
+import '../data/budget_repository.dart';
+
+final budgetRepositoryProvider = Provider<BudgetRepository>((ref) => LocalBudgetRepository());
 
 final weeklyBudgetProvider = StateNotifierProvider<WeeklyBudgetNotifier, WeeklyBudgetState>((ref) {
-  return WeeklyBudgetNotifier();
+  final repository = ref.watch(budgetRepositoryProvider);
+  return WeeklyBudgetNotifier(repository);
 });
 
-class WeeklyBudgetState {
-  final List<BudgetDay> weekDays;
-  final WeeklyBudget weeklyBudget;
-
-  WeeklyBudgetState({required this.weekDays, required this.weeklyBudget});
-}
-
 class WeeklyBudgetNotifier extends StateNotifier<WeeklyBudgetState> {
-  WeeklyBudgetNotifier() : super(WeeklyBudgetState(weekDays: createNewWeek(), weeklyBudget: WeeklyBudget(1000)));
+  final BudgetRepository _repository;
+
+  WeeklyBudgetNotifier(this._repository) : super(WeeklyBudgetState(weekDays: createNewWeek(), weeklyBudget: WeeklyBudget(1000))) {
+    _loadState();
+  }
+
+  Future<void> _loadState() async {
+    state = await _repository.loadBudgetState();
+  }
 
   void addExpense(int dayIndex, double amount) {
     final updatedWeekDays = [...state.weekDays];
@@ -27,6 +32,7 @@ class WeeklyBudgetNotifier extends StateNotifier<WeeklyBudgetState> {
     );
     updatedWeekDays[dayIndex] = updatedDay;
     state = WeeklyBudgetState(weekDays: updatedWeekDays, weeklyBudget: state.weeklyBudget);
+    _saveState();
   }
 
   void removeExpense(int dayIndex, int expenseIndex) {
@@ -39,14 +45,21 @@ class WeeklyBudgetNotifier extends StateNotifier<WeeklyBudgetState> {
     );
     updatedWeekDays[dayIndex] = updatedDay;
     state = WeeklyBudgetState(weekDays: updatedWeekDays, weeklyBudget: state.weeklyBudget);
+    _saveState();
   }
 
   void resetWeek() {
     state = WeeklyBudgetState(weekDays: createNewWeek(), weeklyBudget: state.weeklyBudget);
+    _saveState();
   }
 
   void updateBudget(double newBudget) {
     state = WeeklyBudgetState(weekDays: state.weekDays, weeklyBudget: WeeklyBudget(newBudget));
+    _saveState();
+  }
+
+  Future<void> _saveState() async {
+    await _repository.saveBudgetState(state);
   }
 }
 
