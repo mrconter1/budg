@@ -5,6 +5,7 @@ import 'budget_models.dart';
 import 'daily_expenses_view.dart';
 import 'expense_entry.dart';
 import '../data/budget_repository.dart';
+import '../app_colors.dart';
 
 final budgetRepositoryProvider = Provider<BudgetRepository>((ref) => LocalBudgetRepository());
 
@@ -151,7 +152,7 @@ class WeeklyBudgetListView extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
+            color: AppColors.textLight.withOpacity(0.3),
             spreadRadius: 2,
             blurRadius: 5,
             offset: const Offset(0, 3),
@@ -182,9 +183,12 @@ class WeeklyBudgetListView extends ConsumerWidget {
             height: 20,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: CustomPaint(
-                size: Size.infinite,
-                painter: BudgetProgressPainter(remainingPercentage, Theme.of(context)),
+              child: LinearProgressIndicator(
+                value: remainingPercentage,
+                backgroundColor: AppColors.progressBarBackground,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  remainingPercentage > 0.5 ? AppColors.budgetPositive : AppColors.budgetNegative,
+                ),
               ),
             ),
           ),
@@ -232,7 +236,7 @@ class WeeklyBudgetListView extends ConsumerWidget {
           '${day.totalSpent.toStringAsFixed(2)} kr',
           style: Theme.of(context).textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: day.totalSpent > 0 ? Colors.red : Colors.green,
+                color: day.totalSpent > 0 ? AppColors.budgetNegative : AppColors.budgetPositive,
               ),
         ),
         onTap: () {
@@ -248,52 +252,4 @@ class WeeklyBudgetListView extends ConsumerWidget {
       ),
     );
   }
-}
-
-class BudgetProgressPainter extends CustomPainter {
-  final double remainingPercentage;
-  final ThemeData theme;
-
-  BudgetProgressPainter(this.remainingPercentage, this.theme);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    // Draw background bar
-    final backgroundPaint = Paint()
-      ..color = theme.colorScheme.surfaceVariant.withOpacity(0.5)
-      ..style = PaintingStyle.fill;
-
-    final backgroundRect = RRect.fromLTRBR(
-      0,
-      0,
-      size.width,
-      size.height,
-      Radius.circular(size.height / 2)
-    );
-
-    canvas.drawRRect(backgroundRect, backgroundPaint);
-
-    // Draw progress bar
-    final paint = Paint()
-      ..style = PaintingStyle.fill;
-
-    // Calculate color based on remaining percentage
-    final startColor = Color(0xFF4CAF50); // A more muted green
-    final endColor = Color(0xFFD34040); // A softer red
-
-    paint.color = Color.lerp(endColor, startColor, remainingPercentage)!;
-
-    final rect = RRect.fromLTRBR(
-      size.width * (1 - remainingPercentage),
-      0,
-      size.width,
-      size.height,
-      Radius.circular(size.height / 2)
-    );
-
-    canvas.drawRRect(rect, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

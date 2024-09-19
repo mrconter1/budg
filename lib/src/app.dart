@@ -8,6 +8,7 @@ import 'budget/weekly_budget_view.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_service.dart';
 import 'data/budget_repository.dart';
+import 'app_colors.dart';  // Import the new app_colors.dart file
 
 final settingsServiceProvider = Provider<SettingsService>((ref) => SettingsService());
 
@@ -38,7 +39,14 @@ class MyApp extends ConsumerWidget {
       ],
       onGenerateTitle: (BuildContext context) => AppLocalizations.of(context)!.appTitle,
       theme: FlexThemeData.light(
-        scheme: FlexScheme.green,
+        colors: FlexSchemeColor(
+          primary: AppColors.primaryLight,
+          primaryContainer: AppColors.primaryLight.withOpacity(0.7),
+          secondary: AppColors.secondaryLight,
+          secondaryContainer: AppColors.secondaryLight.withOpacity(0.7),
+          tertiary: AppColors.budgetPositive,
+          error: AppColors.errorLight,
+        ),
         surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
         blendLevel: 9,
         subThemesData: const FlexSubThemesData(
@@ -47,9 +55,17 @@ class MyApp extends ConsumerWidget {
         ),
         visualDensity: FlexColorScheme.comfortablePlatformDensity,
         useMaterial3: true,
+        background: AppColors.backgroundLight,
       ),
       darkTheme: FlexThemeData.dark(
-        scheme: FlexScheme.green,
+        colors: FlexSchemeColor(
+          primary: AppColors.primaryDark,
+          primaryContainer: AppColors.primaryDark.withOpacity(0.7),
+          secondary: AppColors.secondaryDark,
+          secondaryContainer: AppColors.secondaryDark.withOpacity(0.7),
+          tertiary: AppColors.budgetPositive,
+          error: AppColors.errorDark,
+        ),
         surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
         blendLevel: 15,
         subThemesData: const FlexSubThemesData(
@@ -57,6 +73,7 @@ class MyApp extends ConsumerWidget {
         ),
         visualDensity: FlexColorScheme.comfortablePlatformDensity,
         useMaterial3: true,
+        background: AppColors.backgroundDark,
       ),
       themeMode: themeMode,
       home: const WeeklyBudgetListView(),

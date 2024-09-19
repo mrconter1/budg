@@ -1,7 +1,6 @@
-// File: settings_view.dart
-
 import 'package:flutter/material.dart';
 import '../budget/budget_models.dart';
+import '../app_colors.dart';
 
 class SettingsView extends StatefulWidget {
   final VoidCallback onResetWeek;
@@ -41,8 +40,11 @@ class _SettingsViewState extends State<SettingsView> {
             subtitle: TextField(
               controller: _budgetController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: 'Enter weekly budget',
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: AppColors.primaryLight),
+                ),
               ),
               onChanged: (value) {
                 double? newBudget = double.tryParse(value);
@@ -65,17 +67,23 @@ class _SettingsViewState extends State<SettingsView> {
                       content: const Text('Are you sure you want to reset all expenses for this week?'),
                       actions: <Widget>[
                         TextButton(
-                          child: const Text('Cancel'),
+                          child: Text('Cancel', style: TextStyle(color: AppColors.textLight)),
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
                         ),
                         TextButton(
-                          child: const Text('Reset'),
+                          child: Text('Reset', style: TextStyle(color: AppColors.budgetNegative)),
                           onPressed: () {
                             widget.onResetWeek();
                             Navigator.of(context).pop();
                             Navigator.of(context).pop(true);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text('Week reset successfully'),
+                                backgroundColor: AppColors.budgetPositive,
+                              ),
+                            );
                           },
                         ),
                       ],
@@ -83,6 +91,10 @@ class _SettingsViewState extends State<SettingsView> {
                   },
                 );
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.budgetNegative,
+                foregroundColor: AppColors.textDark,
+              ),
               child: const Text('Reset'),
             ),
           ),

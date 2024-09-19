@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'budget_models.dart';
 import 'weekly_budget_view.dart';
 import 'expense_entry.dart';
+import '../app_colors.dart';
 
 class DailyExpensesView extends ConsumerWidget {
   final int dayIndex;
@@ -66,7 +67,7 @@ class DailyExpensesView extends ConsumerWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: AppColors.textLight.withOpacity(0.2),
             spreadRadius: 1,
             blurRadius: 3,
             offset: const Offset(0, 2),
@@ -84,7 +85,7 @@ class DailyExpensesView extends ConsumerWidget {
             'Total Spent: ${day.totalSpent.toStringAsFixed(2)} kr',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.primary,
+                  color: day.totalSpent > 0 ? AppColors.budgetNegative : AppColors.budgetPositive,
                 ),
           ),
           const SizedBox(height: 8),
@@ -112,6 +113,7 @@ class DailyExpensesView extends ConsumerWidget {
           '${expense.amount.toStringAsFixed(2)} kr',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
+                color: AppColors.budgetNegative,
               ),
         ),
         trailing: IconButton(
@@ -142,6 +144,7 @@ class DailyExpensesView extends ConsumerWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text('Expense of ${expense.amount.toStringAsFixed(2)} kr removed'),
+                  backgroundColor: AppColors.budgetPositive,
                 ),
               );
             }
