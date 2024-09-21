@@ -183,12 +183,27 @@ class WeeklyBudgetListView extends ConsumerWidget {
             height: 20,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: LinearProgressIndicator(
-                value: remainingPercentage,
-                backgroundColor: AppColors.progressBarBackground,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  remainingPercentage > 0.5 ? AppColors.budgetPositive : AppColors.budgetNegative,
-                ),
+              child: Stack(
+                children: [
+                  Container(
+                    color: AppColors.progressBarBackground,
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: FractionallySizedBox(
+                      widthFactor: remainingPercentage,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: remainingPercentage > 0.5 ? AppColors.budgetPositive : AppColors.budgetNegative,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(10),
+                            bottomLeft: Radius.circular(10),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
