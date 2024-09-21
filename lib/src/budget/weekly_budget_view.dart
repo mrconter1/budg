@@ -138,6 +138,13 @@ class WeeklyBudgetListView extends ConsumerWidget {
   Widget _buildBudgetOverview(BuildContext context, double totalBudget, double remainingBudget) {
     final remainingPercentage = (remainingBudget / totalBudget).clamp(0.0, 1.0);
     
+    // Create a color that transitions from budgetPositive to budgetNegative
+    Color getColorForPercentage(double percentage) {
+      return Color.lerp(AppColors.budgetNegative, AppColors.budgetPositive, percentage)!;
+    }
+
+    final progressColor = getColorForPercentage(remainingPercentage);
+    
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -194,7 +201,7 @@ class WeeklyBudgetListView extends ConsumerWidget {
                       widthFactor: remainingPercentage,
                       child: Container(
                         decoration: BoxDecoration(
-                          color: remainingPercentage > 0.5 ? AppColors.budgetPositive : AppColors.budgetNegative,
+                          color: progressColor,
                           borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(10),
                             bottomLeft: Radius.circular(10),
