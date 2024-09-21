@@ -138,9 +138,23 @@ class WeeklyBudgetListView extends ConsumerWidget {
   Widget _buildBudgetOverview(BuildContext context, double totalBudget, double remainingBudget) {
     final remainingPercentage = (remainingBudget / totalBudget).clamp(0.0, 1.0);
     
-    // Create a color that transitions from budgetPositive to budgetNegative
+    // Create a color that transitions from green to orange to red
     Color getColorForPercentage(double percentage) {
-      return Color.lerp(AppColors.budgetNegative, AppColors.budgetPositive, percentage)!;
+      if (percentage > 0.5) {
+        // Interpolate between green and orange
+        return Color.lerp(
+          Colors.orange,
+          AppColors.budgetPositive,
+          (percentage - 0.5) * 2
+        )!;
+      } else {
+        // Interpolate between orange and red
+        return Color.lerp(
+          AppColors.budgetNegative,
+          Colors.orange,
+          percentage * 2
+        )!;
+      }
     }
 
     final progressColor = getColorForPercentage(remainingPercentage);
