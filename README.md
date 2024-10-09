@@ -1,15 +1,27 @@
 # budg - The Weekly Budget App
 
-A simple and intuitive Flutter app to help you manage your weekly expenses and stay within your budget.
+A smart and flexible Flutter app to help you manage your weekly "wants" expenses, encourage saving, and develop better financial habits.
 
 ## Features
 
+- 💰 Set and manage a weekly budget for discretionary spending
 - 📅 Track expenses for each day of the week
-- 💰 Set and manage a weekly budget
-- 📊 Visual representation of remaining budget
-- 🔄 Reset expenses for a new week
+- 🏦 Accumulate unspent money as savings
+- 💸 Allow spending from savings for larger purchases
+- 🚫 Track and manage debts from overspending
+- 📊 Visual representation of budget, savings, and debts
+- 🎯 Set and track savings goals
+- 📈 Insights and analytics on spending patterns
 - 🌓 Light and dark mode support
 - 💾 Local data persistence
+
+## Key Concepts
+
+- Weekly Budget: A set amount (e.g., 1.5k SEK) refreshed each week for "wants"
+- Savings: Unspent money accumulates over time
+- Flexible Spending: Use weekly budget or tap into savings
+- Debt Tracking: Overspending creates debt against future weeks
+- Long-term Financial Management: Learn to balance immediate wants with saving
 
 ## Getting Started
 
@@ -22,12 +34,12 @@ A simple and intuitive Flutter app to help you manage your weekly expenses and s
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/weekly-budget-app.git
+   git clone https://github.com/yourusername/budg.git
    ```
 
 2. Navigate to the project directory:
    ```
-   cd weekly-budget-app
+   cd budg
    ```
 
 3. Get the dependencies:
