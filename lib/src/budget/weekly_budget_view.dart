@@ -236,15 +236,15 @@ class WeeklyBudgetListView extends ConsumerWidget {
                     color: AppColors.progressBarBackground,
                   ),
                   Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: Alignment.centerRight,
                     child: FractionallySizedBox(
                       widthFactor: remainingPercentage,
                       child: Container(
                         decoration: BoxDecoration(
                           color: progressColor,
                           borderRadius: BorderRadius.only(
-                            topRight: Radius.circular(10),
-                            bottomRight: Radius.circular(10),
+                            topLeft: Radius.circular(10),
+                            bottomLeft: Radius.circular(10),
                           ),
                         ),
                       ),
