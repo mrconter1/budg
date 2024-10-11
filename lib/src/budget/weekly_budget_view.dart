@@ -238,7 +238,7 @@ class WeeklyBudgetListView extends ConsumerWidget {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: FractionallySizedBox(
-                      widthFactor: 1 - remainingPercentage,
+                      widthFactor: remainingPercentage,
                       child: Container(
                         decoration: BoxDecoration(
                           color: progressColor,
