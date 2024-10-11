@@ -76,40 +76,19 @@ class WeeklyBudgetListView extends ConsumerWidget {
     final remainingBudget = state.weeklyBudget.remainingBudget(state.weekDays);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Weekly Budget'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () async {
-              final result = await Navigator.push<bool>(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SettingsView(
-                    onResetWeek: notifier.resetWeek,
-                    weeklyBudget: state.weeklyBudget,
-                    onUpdateBudget: notifier.updateBudget,
-                  ),
-                ),
-              );
-              if (result == true) {
-                notifier.resetWeek();
-              }
-            },
+      body: CustomScrollView(
+        slivers: [
+          _buildSliverAppBar(context, state.weeklyBudget.amount, remainingBudget, notifier),
+          SliverToBoxAdapter(
+            child: _buildBudgetOverview(context, state.weeklyBudget.amount, remainingBudget),
           ),
-        ],
-      ),
-      body: Column(
-        children: [
-          _buildBudgetOverview(context, state.weeklyBudget.amount, remainingBudget),
-          Expanded(
-            child: ListView.builder(
-              restorationId: 'weeklyBudgetListView',
-              itemCount: state.weekDays.length,
-              itemBuilder: (BuildContext context, int index) {
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (BuildContext context, int index) {
                 final day = state.weekDays[index];
                 return _buildDayCard(context, day, index);
               },
+              childCount: state.weekDays.length,
             ),
           ),
         ],
@@ -135,20 +114,83 @@ class WeeklyBudgetListView extends ConsumerWidget {
     );
   }
 
+  Widget _buildSliverAppBar(BuildContext context, double totalBudget, double remainingBudget, WeeklyBudgetNotifier notifier) {
+    return SliverAppBar(
+      expandedHeight: 200.0,
+      floating: false,
+      pinned: true,
+      flexibleSpace: FlexibleSpaceBar(
+        title: Text(
+          'Weekly Budget',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onPrimary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        background: Stack(
+          fit: StackFit.expand,
+          children: [
+            DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Theme.of(context).colorScheme.primary,
+                    Theme.of(context).colorScheme.secondary,
+                  ],
+                ),
+              ),
+            ),
+            Positioned(
+              left: 16,
+              right: 16,
+              bottom: 60,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildBudgetItem(context, 'Total', totalBudget, true),
+                  _buildBudgetItem(context, 'Remaining', remainingBudget, true),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.settings),
+          onPressed: () async {
+            final result = await Navigator.push<bool>(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SettingsView(
+                  onResetWeek: notifier.resetWeek,
+                  weeklyBudget: WeeklyBudget(totalBudget),
+                  onUpdateBudget: notifier.updateBudget,
+                ),
+              ),
+            );
+            if (result == true) {
+              notifier.resetWeek();
+            }
+          },
+        ),
+      ],
+    );
+  }
+
   Widget _buildBudgetOverview(BuildContext context, double totalBudget, double remainingBudget) {
     final remainingPercentage = (remainingBudget / totalBudget).clamp(0.0, 1.0);
     
-    // Create a color that transitions from green to orange to red
     Color getColorForPercentage(double percentage) {
       if (percentage > 0.5) {
-        // Interpolate between green and orange
         return Color.lerp(
           Colors.orange,
           AppColors.budgetPositive,
           (percentage - 0.5) * 2
         )!;
       } else {
-        // Interpolate between orange and red
         return Color.lerp(
           AppColors.budgetNegative,
           Colors.orange,
@@ -161,43 +203,27 @@ class WeeklyBudgetListView extends ConsumerWidget {
     
     return Container(
       padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Theme.of(context).colorScheme.primaryContainer,
-            Theme.of(context).colorScheme.secondaryContainer,
-          ],
-        ),
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColors.textLight.withOpacity(0.3),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
+            color: Theme.of(context).shadowColor.withOpacity(0.1),
+            spreadRadius: 0,
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      margin: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Weekly Budget Overview',
+            'Budget Progress',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
                   fontWeight: FontWeight.bold,
                 ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildBudgetItem(context, 'Total', totalBudget),
-              _buildBudgetItem(context, 'Remaining', remainingBudget),
-            ],
           ),
           const SizedBox(height: 16),
           SizedBox(
@@ -210,15 +236,15 @@ class WeeklyBudgetListView extends ConsumerWidget {
                     color: AppColors.progressBarBackground,
                   ),
                   Align(
-                    alignment: Alignment.centerRight,
+                    alignment: Alignment.centerLeft,
                     child: FractionallySizedBox(
-                      widthFactor: remainingPercentage,
+                      widthFactor: 1 - remainingPercentage,
                       child: Container(
                         decoration: BoxDecoration(
                           color: progressColor,
                           borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(10),
-                            bottomLeft: Radius.circular(10),
+                            topRight: Radius.circular(10),
+                            bottomRight: Radius.circular(10),
                           ),
                         ),
                       ),
@@ -228,25 +254,34 @@ class WeeklyBudgetListView extends ConsumerWidget {
               ),
             ),
           ),
+          const SizedBox(height: 8),
+          Text(
+            '${(remainingPercentage * 100).toStringAsFixed(1)}% remaining',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildBudgetItem(BuildContext context, String label, double amount) {
+  Widget _buildBudgetItem(BuildContext context, String label, double amount, bool isAppBar) {
+    final textColor = isAppBar ? Colors.white : Theme.of(context).colorScheme.onSurface;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           label,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: textColor.withOpacity(0.8),
               ),
         ),
         Text(
           '${amount.toStringAsFixed(2)} kr',
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: textColor,
                 fontWeight: FontWeight.bold,
               ),
         ),
@@ -256,25 +291,17 @@ class WeeklyBudgetListView extends ConsumerWidget {
 
   Widget _buildDayCard(BuildContext context, BudgetDay day, int index) {
     return Card(
-      elevation: 2,
+      elevation: 0,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: Theme.of(context).colorScheme.secondary,
-          child: Text(
-            day.dayName.substring(0, 2),
-            style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-          ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: Theme.of(context).dividerColor.withOpacity(0.1),
+          width: 1,
         ),
-        title: Text(day.dayName, style: Theme.of(context).textTheme.titleMedium),
-        subtitle: Text('${day.expenses.length} expenses'),
-        trailing: Text(
-          '${day.totalSpent.toStringAsFixed(2)} kr',
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: day.totalSpent > 0 ? AppColors.budgetNegative : AppColors.budgetPositive,
-              ),
-        ),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
         onTap: () {
           Navigator.push(
             context,
@@ -285,6 +312,57 @@ class WeeklyBudgetListView extends ConsumerWidget {
             ),
           );
         },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondaryContainer,
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    day.dayName.substring(0, 2),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSecondaryContainer,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      day.dayName,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    Text(
+                      '${day.expenses.length} expenses',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+              Text(
+                '${day.totalSpent.toStringAsFixed(2)} kr',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: day.totalSpent > 0 ? AppColors.budgetNegative : AppColors.budgetPositive,
+                    ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
