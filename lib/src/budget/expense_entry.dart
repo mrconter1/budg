@@ -22,6 +22,7 @@ class _ExpenseEntryState extends State<ExpenseEntry> {
   late int _selectedDayIndex;
   final _amountController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  final FocusNode _amountFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -55,28 +56,11 @@ class _ExpenseEntryState extends State<ExpenseEntry> {
             ),
             const SizedBox(height: 16),
             if (widget.weekDays != null)
-              DropdownButtonFormField<int>(
-                value: _selectedDayIndex,
-                items: List.generate(
-                  widget.weekDays!.length,
-                  (index) => DropdownMenuItem(
-                    value: index,
-                    child: Text(widget.weekDays![index].dayName),
-                  ),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedDayIndex = value!;
-                  });
-                },
-                decoration: const InputDecoration(
-                  labelText: 'Day',
-                  border: OutlineInputBorder(),
-                ),
-              ),
+              _buildCustomDropdown(),
             if (widget.weekDays != null) const SizedBox(height: 16),
             TextFormField(
               controller: _amountController,
+              focusNode: _amountFocusNode,
               keyboardType: TextInputType.numberWithOptions(decimal: true),
               decoration: const InputDecoration(
                 labelText: 'Amount (kr)',
@@ -112,9 +96,54 @@ class _ExpenseEntryState extends State<ExpenseEntry> {
     );
   }
 
+  Widget _buildCustomDropdown() {
+    return GestureDetector(
+      onTap: () {
+        _showDayPicker(context);
+      },
+      child: InputDecorator(
+        decoration: const InputDecoration(
+          labelText: 'Day',
+          border: OutlineInputBorder(),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(widget.weekDays![_selectedDayIndex].dayName),
+            const Icon(Icons.arrow_drop_down),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showDayPicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return ListView.builder(
+          itemCount: widget.weekDays!.length,
+          itemBuilder: (context, index) {
+            return ListTile(
+              title: Text(widget.weekDays![index].dayName),
+              onTap: () {
+                setState(() {
+                  _selectedDayIndex = index;
+                });
+                Navigator.pop(context);
+                _amountFocusNode.requestFocus(); // Refocus on the amount field
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
     _amountController.dispose();
+    _amountFocusNode.dispose();
     super.dispose();
   }
 }
