@@ -81,3 +81,35 @@ List<BudgetDay> createNewWeek() {
     BudgetDay('Sunday'),
   ];
 }
+
+class WeeklyBudgetHistory {
+  final String weekId;
+  final DateTime startDate;
+  final List<BudgetDay> weekDays;
+  final WeeklyBudget weeklyBudget;
+
+  WeeklyBudgetHistory({
+    required this.weekId,
+    required this.startDate,
+    required this.weekDays,
+    required this.weeklyBudget,
+  });
+
+  double get totalSpent => weekDays.fold(0, (sum, day) => sum + day.totalSpent);
+
+  Map<String, dynamic> toJson() => {
+    'weekId': weekId,
+    'startDate': startDate.toIso8601String(),
+    'weekDays': weekDays.map((day) => day.toJson()).toList(),
+    'weeklyBudget': weeklyBudget.toJson(),
+  };
+
+  factory WeeklyBudgetHistory.fromJson(Map<String, dynamic> json) {
+    return WeeklyBudgetHistory(
+      weekId: json['weekId'],
+      startDate: DateTime.parse(json['startDate']),
+      weekDays: (json['weekDays'] as List).map((dayJson) => BudgetDay.fromJson(dayJson)).toList(),
+      weeklyBudget: WeeklyBudget.fromJson(json['weeklyBudget']),
+    );
+  }
+}

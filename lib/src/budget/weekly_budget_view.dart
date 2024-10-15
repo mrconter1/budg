@@ -6,6 +6,7 @@ import 'daily_expenses_view.dart';
 import 'expense_entry.dart';
 import '../data/budget_repository.dart';
 import '../app_colors.dart';
+import 'weekly_budget_history_view.dart';
 
 final budgetRepositoryProvider = Provider<BudgetRepository>((ref) => LocalBudgetRepository());
 
@@ -49,7 +50,8 @@ class WeeklyBudgetNotifier extends StateNotifier<WeeklyBudgetState> {
     _saveState();
   }
 
-  void resetWeek() {
+  Future<void> resetWeek() async {
+    await (_repository as LocalBudgetRepository).archiveCurrentWeek(state);
     state = WeeklyBudgetState(weekDays: createNewWeek(), weeklyBudget: state.weeklyBudget);
     _saveState();
   }
@@ -93,23 +95,40 @@ class WeeklyBudgetListView extends ConsumerWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            builder: (BuildContext context) {
-              return ExpenseEntry(
-                weekDays: state.weekDays,
-                onAddExpense: (dayIndex, amount) {
-                  notifier.addExpense(dayIndex, amount);
-                  Navigator.pop(context);
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            heroTag: 'history',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const WeeklyBudgetHistoryView()),
+              );
+            },
+            child: const Icon(Icons.history),
+          ),
+          const SizedBox(height: 16),
+          FloatingActionButton(
+            heroTag: 'add',
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                builder: (BuildContext context) {
+                  return ExpenseEntry(
+                    weekDays: state.weekDays,
+                    onAddExpense: (dayIndex, amount) {
+                      notifier.addExpense(dayIndex, amount);
+                      Navigator.pop(context);
+                    },
+                  );
                 },
               );
             },
-          );
-        },
-        child: const Icon(Icons.add),
+            child: const Icon(Icons.add),
+          ),
+        ],
       ),
     );
   }
