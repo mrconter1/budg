@@ -1,4 +1,4 @@
-# budg - The Weekly Budget App
+# villhöver- The Weekly Budget App
 
 A smart and flexible Flutter app to help you manage your weekly "wants" expenses, encourage saving, and develop better financial habits.
 
