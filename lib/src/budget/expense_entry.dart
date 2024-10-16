@@ -76,17 +76,12 @@ class _ExpenseEntryState extends State<ExpenseEntry> {
                 return null;
               },
               autofocus: true,
+              onFieldSubmitted: (_) => _addExpense(),
+              textInputAction: TextInputAction.done,
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  widget.onAddExpense(
-                    _selectedDayIndex,
-                    double.parse(_amountController.text),
-                  );
-                }
-              },
+              onPressed: _addExpense,
               child: const Text('Add Expense'),
             ),
             const SizedBox(height: 16),
@@ -138,6 +133,17 @@ class _ExpenseEntryState extends State<ExpenseEntry> {
         );
       },
     );
+  }
+
+  void _addExpense() {
+    if (_formKey.currentState!.validate()) {
+      widget.onAddExpense(
+        _selectedDayIndex,
+        double.parse(_amountController.text),
+      );
+      _amountController.clear();
+      _amountFocusNode.requestFocus();
+    }
   }
 
   @override
