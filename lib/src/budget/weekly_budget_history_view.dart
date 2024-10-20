@@ -53,9 +53,18 @@ class WeeklyBudgetHistoryView extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Week of ${DateFormat('MMM d, yyyy').format(weekHistory.startDate)}',
-              style: Theme.of(context).textTheme.titleLarge,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Week ${weekHistory.weekNumber}',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                Text(
+                  DateFormat('MMM d, yyyy').format(weekHistory.startDate),
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ],
             ),
             const SizedBox(height: 8),
             LinearProgressIndicator(
