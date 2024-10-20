@@ -23,6 +23,7 @@ class WeeklyBudgetNotifier extends StateNotifier<WeeklyBudgetState> {
   }
 
   Future<void> _loadState() async {
+    await _repository.checkAndResetBudget();
     state = await _repository.loadBudgetState();
   }
 
@@ -51,8 +52,8 @@ class WeeklyBudgetNotifier extends StateNotifier<WeeklyBudgetState> {
   }
 
   Future<void> resetWeek() async {
-    await (_repository as LocalBudgetRepository).archiveCurrentWeek(state);
-    state = WeeklyBudgetState(weekDays: createNewWeek(), weeklyBudget: state.weeklyBudget);
+    await (_repository as LocalBudgetRepository).checkAndResetBudget();
+    state = await _repository.loadBudgetState();
     _saveState();
   }
 

@@ -8,11 +8,13 @@ abstract class BudgetRepository {
   Future<void> saveBudgetState(WeeklyBudgetState state);
   Future<List<WeeklyBudgetHistory>> loadBudgetHistory();
   Future<void> saveBudgetHistory(List<WeeklyBudgetHistory> history);
+  Future<void> checkAndResetBudget();
 }
 
 class LocalBudgetRepository implements BudgetRepository {
   static const String _stateKey = 'budget_state';
   static const String _historyKey = 'budget_history';
+  static const String _lastResetKey = 'last_reset';
 
   @override
   Future<WeeklyBudgetState> loadBudgetState() async {
@@ -41,8 +43,7 @@ class LocalBudgetRepository implements BudgetRepository {
       final List<dynamic> historyList = json.decode(historyJson);
       return historyList.map((item) => WeeklyBudgetHistory.fromJson(item)).toList();
     }
-    // If the history is empty, add sample data for the last three weeks
-    return _createSampleHistory();
+    return [];
   }
 
   @override
@@ -52,30 +53,32 @@ class LocalBudgetRepository implements BudgetRepository {
     await prefs.setString(_historyKey, historyJson);
   }
 
-  // Helper method to create sample history data
-  List<WeeklyBudgetHistory> _createSampleHistory() {
-    final currentDate = DateTime.now();
-    List<WeeklyBudgetHistory> sampleHistory = [];
+  @override
+  Future<void> checkAndResetBudget() async {
+    final now = DateTime.now();
+    final prefs = await SharedPreferences.getInstance();
+    final lastResetString = prefs.getString(_lastResetKey);
+    final lastReset = lastResetString != null ? DateTime.parse(lastResetString) : null;
 
-    for (int i = 3; i > 0; i--) {
-      final weekStartDate = currentDate.subtract(Duration(days: 7 * i + currentDate.weekday - 1));
-      int weekNumber = _getWeekNumber(weekStartDate);
+    if (lastReset == null || _shouldReset(now, lastReset)) {
+      final currentState = await loadBudgetState();
+      await _archiveCurrentWeek(currentState);
       
-      // Make the second week (i == 2) unsuccessful
-      bool isSuccessful = i != 2;
-
-      sampleHistory.add(WeeklyBudgetHistory(
-        weekNumber: weekNumber,
-        isSuccessful: isSuccessful,
-        startDate: weekStartDate,
-      ));
+      final newState = WeeklyBudgetState(
+        weekDays: createNewWeek(),
+        weeklyBudget: currentState.weeklyBudget,
+      );
+      await saveBudgetState(newState);
+      await prefs.setString(_lastResetKey, now.toIso8601String());
     }
-
-    return sampleHistory;
   }
 
-  // Helper method to archive the current week's budget
-  Future<void> archiveCurrentWeek(WeeklyBudgetState currentState) async {
+  bool _shouldReset(DateTime now, DateTime lastReset) {
+    // Reset if it's past Sunday midnight and the last reset was before Sunday
+    return now.weekday == DateTime.monday && lastReset.weekday != DateTime.monday && now.difference(lastReset).inHours >= 24;
+  }
+
+  Future<void> _archiveCurrentWeek(WeeklyBudgetState currentState) async {
     final history = await loadBudgetHistory();
     final currentDate = DateTime.now();
     final weekStartDate = currentDate.subtract(Duration(days: currentDate.weekday - 1));
@@ -89,7 +92,7 @@ class LocalBudgetRepository implements BudgetRepository {
       startDate: weekStartDate,
     );
 
-    history.insert(0, weekHistory); // Add the current week to the beginning of the list
+    history.insert(0, weekHistory);
     
     // Optionally, limit the history to a certain number of weeks (e.g., 12 weeks)
     if (history.length > 12) {
@@ -99,23 +102,8 @@ class LocalBudgetRepository implements BudgetRepository {
     await saveBudgetHistory(history);
   }
 
-  // Helper method to start a new week
-  Future<void> startNewWeek() async {
-    final currentState = await loadBudgetState();
-    await archiveCurrentWeek(currentState);
-
-    final newState = WeeklyBudgetState(
-      weekDays: createNewWeek(),
-      weeklyBudget: currentState.weeklyBudget, // Keep the same weekly budget
-    );
-
-    await saveBudgetState(newState);
-  }
-
-  // Helper method to calculate the week number
   int _getWeekNumber(DateTime date) {
     int dayOfYear = int.parse(DateFormat('D').format(date));
-    int weekOfYear = ((dayOfYear - date.weekday + 10) / 7).floor();
-    return weekOfYear;
+    return ((dayOfYear - date.weekday + 10) / 7).floor();
   }
 }
