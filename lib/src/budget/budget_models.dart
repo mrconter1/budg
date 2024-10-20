@@ -83,37 +83,27 @@ List<BudgetDay> createNewWeek() {
 }
 
 class WeeklyBudgetHistory {
-  final String weekId;
+  final int weekNumber;
+  final bool isSuccessful;
   final DateTime startDate;
-  final List<BudgetDay> weekDays;
-  final WeeklyBudget weeklyBudget;
-  final int weekNumber;  // New field for week number
 
   WeeklyBudgetHistory({
-    required this.weekId,
+    required this.weekNumber,
+    required this.isSuccessful,
     required this.startDate,
-    required this.weekDays,
-    required this.weeklyBudget,
-    required this.weekNumber,  // Added to the constructor
   });
 
-  double get totalSpent => weekDays.fold(0, (sum, day) => sum + day.totalSpent);
-
   Map<String, dynamic> toJson() => {
-    'weekId': weekId,
+    'weekNumber': weekNumber,
+    'isSuccessful': isSuccessful,
     'startDate': startDate.toIso8601String(),
-    'weekDays': weekDays.map((day) => day.toJson()).toList(),
-    'weeklyBudget': weeklyBudget.toJson(),
-    'weekNumber': weekNumber,  // Added to JSON serialization
   };
 
   factory WeeklyBudgetHistory.fromJson(Map<String, dynamic> json) {
     return WeeklyBudgetHistory(
-      weekId: json['weekId'],
+      weekNumber: json['weekNumber'],
+      isSuccessful: json['isSuccessful'],
       startDate: DateTime.parse(json['startDate']),
-      weekDays: (json['weekDays'] as List).map((dayJson) => BudgetDay.fromJson(dayJson)).toList(),
-      weeklyBudget: WeeklyBudget.fromJson(json['weeklyBudget']),
-      weekNumber: json['weekNumber'],  // Added to JSON deserialization
     );
   }
 }

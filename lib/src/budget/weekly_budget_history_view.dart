@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'budget_models.dart';
+import 'package:intl/intl.dart';
+import '../budget/budget_models.dart';
 import '../data/budget_repository.dart';
 import '../app_colors.dart';
-import 'package:intl/intl.dart';
 
 final budgetRepositoryProvider = Provider<BudgetRepository>((ref) => LocalBudgetRepository());
 
@@ -42,63 +42,30 @@ class WeeklyBudgetHistoryView extends ConsumerWidget {
   }
 
   Widget _buildWeekCard(BuildContext context, WeeklyBudgetHistory weekHistory) {
-    final remainingBudget = weekHistory.weeklyBudget.amount - weekHistory.totalSpent;
-    final remainingPercentage = (remainingBudget / weekHistory.weeklyBudget.amount).clamp(0.0, 1.0);
-    final progressColor = _getColorForPercentage(remainingPercentage);
-
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      color: weekHistory.isSuccessful ? Colors.green.shade100 : Colors.red.shade100,
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Week ${weekHistory.weekNumber}',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                Text(
-                  DateFormat('MMM d, yyyy').format(weekHistory.startDate),
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            LinearProgressIndicator(
-              value: 1 - remainingPercentage,
-              backgroundColor: AppColors.progressBarBackground,
-              valueColor: AlwaysStoppedAnimation<Color>(progressColor),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Budget: ${weekHistory.weeklyBudget.amount.toStringAsFixed(2)} kr'),
-                Text('Spent: ${weekHistory.totalSpent.toStringAsFixed(2)} kr'),
-              ],
-            ),
-            const SizedBox(height: 8),
             Text(
-              'Remaining: ${remainingBudget.toStringAsFixed(2)} kr',
-              style: TextStyle(
+              'Week ${weekHistory.weekNumber}',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: weekHistory.isSuccessful ? Colors.green.shade800 : Colors.red.shade800,
                 fontWeight: FontWeight.bold,
-                color: remainingBudget >= 0 ? AppColors.budgetPositive : AppColors.budgetNegative,
+              ),
+            ),
+            Text(
+              DateFormat('MMM d, yyyy').format(weekHistory.startDate),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: weekHistory.isSuccessful ? Colors.green.shade800 : Colors.red.shade800,
               ),
             ),
           ],
         ),
       ),
     );
-  }
-
-  Color _getColorForPercentage(double percentage) {
-    if (percentage > 0.5) {
-      return Color.lerp(Colors.orange, AppColors.budgetPositive, (percentage - 0.5) * 2)!;
-    } else {
-      return Color.lerp(AppColors.budgetNegative, Colors.orange, percentage * 2)!;
-    }
   }
 }

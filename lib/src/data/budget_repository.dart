@@ -41,7 +41,7 @@ class LocalBudgetRepository implements BudgetRepository {
       final List<dynamic> historyList = json.decode(historyJson);
       return historyList.map((item) => WeeklyBudgetHistory.fromJson(item)).toList();
     }
-    // If the history is empty, add sample data for the last three successful weeks
+    // If the history is empty, add sample data for the last three weeks
     return _createSampleHistory();
   }
 
@@ -55,31 +55,19 @@ class LocalBudgetRepository implements BudgetRepository {
   // Helper method to create sample history data
   List<WeeklyBudgetHistory> _createSampleHistory() {
     final currentDate = DateTime.now();
-    final weeklyBudget = WeeklyBudget(1000); // Assuming a 1000 kr weekly budget
-
     List<WeeklyBudgetHistory> sampleHistory = [];
 
     for (int i = 3; i > 0; i--) {
       final weekStartDate = currentDate.subtract(Duration(days: 7 * i + currentDate.weekday - 1));
-      final weekDays = createNewWeek();
-
-      // Simulate successful weeks by spending slightly less than the budget
-      double totalSpent = 0;
-      for (var day in weekDays) {
-        double daySpent = (weeklyBudget.amount / 7) * 0.95; // Spend 95% of daily budget
-        day.expenses.add(Expense(daySpent));
-        totalSpent += daySpent;
-      }
-
-      // Calculate the week number
       int weekNumber = _getWeekNumber(weekStartDate);
+      
+      // Make the second week (i == 2) unsuccessful
+      bool isSuccessful = i != 2;
 
       sampleHistory.add(WeeklyBudgetHistory(
-        weekId: 'week_${weekStartDate.millisecondsSinceEpoch}',
-        startDate: weekStartDate,
-        weekDays: weekDays,
-        weeklyBudget: weeklyBudget,
         weekNumber: weekNumber,
+        isSuccessful: isSuccessful,
+        startDate: weekStartDate,
       ));
     }
 
@@ -92,15 +80,13 @@ class LocalBudgetRepository implements BudgetRepository {
     final currentDate = DateTime.now();
     final weekStartDate = currentDate.subtract(Duration(days: currentDate.weekday - 1));
     
-    // Calculate the week number for the current week
     int weekNumber = _getWeekNumber(weekStartDate);
+    bool isSuccessful = currentState.weeklyBudget.remainingBudget(currentState.weekDays) >= 0;
 
     final weekHistory = WeeklyBudgetHistory(
-      weekId: 'week_${weekStartDate.millisecondsSinceEpoch}',
-      startDate: weekStartDate,
-      weekDays: currentState.weekDays,
-      weeklyBudget: currentState.weeklyBudget,
       weekNumber: weekNumber,
+      isSuccessful: isSuccessful,
+      startDate: weekStartDate,
     );
 
     history.insert(0, weekHistory); // Add the current week to the beginning of the list
